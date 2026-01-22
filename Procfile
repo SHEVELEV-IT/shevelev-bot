@@ -1,1 +1,1 @@
-worker: phyton shevelev-bot.py
+worker: python shevelev-bot.py
