@@ -1,1 +1,1 @@
-worker: python shevelev-bot.py
+worker: python /app/shevelev-bot.py
