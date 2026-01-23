@@ -3,24 +3,44 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 import os
+import sys
 
+# --- Чтение и проверка переменных окружения ---
 API_TOKEN = os.getenv("API_TOKEN")
-ADMIN_ID = int(os.getenv("ADMIN_ID"))
+ADMIN_ID_STR = os.getenv("ADMIN_ID")
 
+if API_TOKEN is None:
+    print("Ошибка: переменная окружения API_TOKEN не установлена!")
+    sys.exit(1)
+if ADMIN_ID_STR is None:
+    print("Ошибка: переменная окружения ADMIN_ID не установлена!")
+    sys.exit(1)
+
+# Убираем кавычки и пробелы, приводим к int
+try:
+    ADMIN_ID = int(ADMIN_ID_STR.replace('"', '').strip())
+except ValueError:
+    print(f"Ошибка: ADMIN_ID должно быть числом. Получено: {ADMIN_ID_STR}")
+    sys.exit(1)
+
+# --- Инициализация бота ---
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
+# --- Стейты ---
 class Application(StatesGroup):
     name = State()
     contact = State()
     text = State()
 
+# --- Клавиатура ---
 def main_keyboard():
     kb = types.ReplyKeyboardMarkup(resize_keyboard=True)
     kb.add("❓ Задать вопрос")
     kb.add("📝 Оставить заявку")
     return kb
 
+# --- Обработчики ---
 @dp.message_handler(commands="start")
 async def start(message: types.Message):
     await message.answer(
@@ -83,5 +103,7 @@ async def form_text(message: types.Message, state: FSMContext):
     await message.answer("Заявка отправлена. Мы свяжемся с вами.")
     await state.finish()
 
+# --- Запуск бота ---
 if __name__ == "__main__":
+    print(f"Бот запускается! ADMIN_ID = {ADMIN_ID}")
     executor.start_polling(dp, skip_updates=True)
