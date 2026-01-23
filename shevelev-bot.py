@@ -1,20 +1,25 @@
-import os
-import sys
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from dotenv import load_dotenv
+import os
+import sys
 
-# --- Чтение переменных окружения с возможностью ввода вручную ---
+# --- Загружаем переменные из .env ---
+load_dotenv()
+
 API_TOKEN = os.getenv("API_TOKEN")
-if not API_TOKEN:
-    API_TOKEN = input("Введите токен бота (API_TOKEN): ").strip()
-
 ADMIN_ID_STR = os.getenv("ADMIN_ID")
-if not ADMIN_ID_STR:
-    ADMIN_ID_STR = input("Введите ваш ID администратора (ADMIN_ID): ").strip()
 
-# Преобразуем ADMIN_ID в число
+# Проверка переменных
+if API_TOKEN is None:
+    print("Ошибка: переменная окружения API_TOKEN не установлена!")
+    sys.exit(1)
+if ADMIN_ID_STR is None:
+    print("Ошибка: переменная окружения ADMIN_ID не установлена!")
+    sys.exit(1)
+
 try:
     ADMIN_ID = int(ADMIN_ID_STR.replace('"', '').strip())
 except ValueError:
